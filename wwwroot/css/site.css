@@ -1,0 +1,76 @@
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: clamp(14px, 0.92rem + 0.4vw, 16px);
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+a {
+    text-decoration: none;
+}
+
+header {
+    background-color: #242424;
+    padding: 10px;
+
+    a {
+        color: white;
+    }
+}
+
+.logoutBtn {
+    background-color: #a3a3a3;
+    border: none;
+    border-radius: 5px;
+}
+
+.main_container {
+    height: 75vh;
+    overflow: hidden;
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: #f4f4f4;
+    scrollbar-width: thin;
+    -ms-overflow-style: none;
+}
+
+    .main_container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .main_container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+
+.message {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 40px;
+    margin: 20px;
+    border-radius: 5px;
+    background-color: #8c8c8c;
+    width: fit-content;
+}
+
+.user_name {
+    font-size: 12px;
+}
+
+.massage_time {
+    font-size: 8px;
+    color: #3d3d3d;
+}
+
+.message_form {
+    background: white;
+    padding: 20px;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0; 

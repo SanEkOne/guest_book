@@ -1,0 +1,27 @@
+﻿@model IEnumerable<mvc.Message>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main_container">
+@foreach (var s in Model)
+{
+    <div class="message">
+        <p class="user_name">@s.User?.Login</p>
+        <p>@s.Text</p>
+        <p class="massage_time">@s.DateTime.ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
+}
+</div>
+
+<form asp-action="Index" method="post" class="message_form">
+    <div class="form-group">
+        <label>Сообщение</label>
+        <input type="text" name="Text" class="form-control" required oninvalid="this.setCustomValidity('Введите текст сообщения')" oninput="this.setCustomValidity('')" style="border: 1px solid #a8a8a8" />
+    </div>
+
+    <div style="margin-top:15px;">
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </div>
+</form>

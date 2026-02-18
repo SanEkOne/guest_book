@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html> <!-- т.зв. майстер-сторінка, зручно для схожого дизайну різних сторінок сайта -->
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASP.NET MVC Application</title>
+    <!-- теги лінк та скріпт нижче - це не звичайні теги, а т.зв. тег-хелпери,
+            вони допомагають правильно вказати шляхи до файлів стилів та скриптів, часто містять незвичні для хтмл атрибути
+            конкретно ~ у шляху вказує на папку wwwroot, використовується так звана віртуальна адресація, без ~ шлях буде відносним до поточної сторінки, і тег стане звичайним хтмл тегом 
+          
+         основна причина використання - швидкі оновлення на продакшені.
+         якщо написати <link href="~/css/site.css" /> вручну, то ми потім самі відповідаємо за те, щоб після кожного деплою користувачі отримали новий файл.
+    99 % розробників цього не роблять, і внаслідок користувачі бачать старі стилі тижнями.
+    але якщо скористатись тег-хелперами і скажімо додати asp-append-version="true", то ASP.NET Core зробить всі оновлення за нас автоматично і безпомилково.
+            -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+</head>
+<body>
+    <header>
+        <a asp-controller="Message" asp-action="Index" class="logo">Главная</a>
+        <a asp-controller="User" asp-action="Index">Регистрация</a>
+        @using (Html.BeginForm("Logout", "User", FormMethod.Get, new { @class = "inline" }))
+        {
+            <button type="submit" class="logoutBtn">Выйти</button>
+        }
+    </header>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
