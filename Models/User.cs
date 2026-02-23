@@ -14,6 +14,7 @@ namespace mvc
         [Required(ErrorMessage = "Поле должно быть заполнено!")]
         [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Логин может содержать только буквы и цифры.")]
         public string? Password { get; set; }
+        public string? Salt { get; set; }
 
         public List<Message> Messages { get; set; } = new();
     }
