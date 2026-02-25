@@ -1,26 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using mvc;
+using mvc.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace mvc.Controllers
 {
     public class MessageController : Controller
     {
-        private readonly MessageContext _context;
+        private readonly IMessageService _messageService;
 
-        public MessageController(MessageContext context)
+        public MessageController(IMessageService messageService)
         {
-            _context = context;
+            _messageService = messageService;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Messages.Include(m => m.User).ToListAsync());
+            var messages = await _messageService.GetAllMessagesAsync();
+            return View(messages);
         }
 
         [HttpPost]
@@ -28,27 +30,25 @@ namespace mvc.Controllers
         public async Task<IActionResult> Index([Bind("Text")] Message message)
         {
             if (!ModelState.IsValid)
-                return View(await _context.Messages.Include(m => m.User).ToListAsync());
+            {
+                return View(await _messageService.GetAllMessagesAsync());
+            }
 
             string? userLogin = Request.Cookies["login"];
             if (string.IsNullOrEmpty(userLogin))
             {
-                return RedirectToAction("index", "User");
+                return RedirectToAction("Index", "User");
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == userLogin);
-            if (user == null)
+            try
             {
-                return RedirectToAction("User", "Login");
+                await _messageService.CreateMessageAsync(message.Text, userLogin);
+                return RedirectToAction(nameof(Index));
             }
-
-            message.UserId = user.Id;
-            message.DateTime = DateTime.Now;
-
-            _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            catch
+            {
+                return RedirectToAction("Login", "User");
+            }
         }
 
     }

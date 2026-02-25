@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using mvc.Services;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,14 +8,15 @@ namespace mvc.Controllers
 {
     public class UserController : Controller
     {
-        private readonly MessageContext _context;
+        private readonly IUserService _userService;
 
-        public UserController(MessageContext context)
+        public UserController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public IActionResult Index()
         {
             return View();
         }
@@ -25,37 +27,14 @@ namespace mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[] saltbuf = new byte[16];
-                var r = RandomNumberGenerator.Create(); 
-                r.GetBytes(saltbuf); 
-
-                var sb = new StringBuilder(16); 
-                for (int i = 0; i < 16; i++)
-                    sb.Append(string.Format("{0:X2}", saltbuf[i])); 
-
-                var salt = sb.ToString(); 
-
-                byte[] password = Encoding.Unicode.GetBytes(salt + user.Password);
-
-                var md5 = MD5.Create();
-
-                byte[] byteHash = md5.ComputeHash(password);
-
-                var hash = new StringBuilder(byteHash.Length); 
-                for (int i = 0; i < byteHash.Length; i++)
-                    hash.Append(string.Format("{0:X2}", byteHash[i]));
-
-                user.Password = hash.ToString(); 
-                user.Salt = salt; 
-
-                _context.Add(user);
-                await _context.SaveChangesAsync();
+                await _userService.RegisterAsync(user);
                 return RedirectToAction(nameof(Index));
             }
             return View(user);
         }
 
-        public async Task<IActionResult> Login()
+        [HttpGet]
+        public IActionResult Login()
         {
             return View();
         }
@@ -64,36 +43,14 @@ namespace mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(User model)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == model.Login);
+            var user = await _userService.AuthenticateAsync(model.Login, model.Password);
 
             if (user != null)
             {
-                //string? salt = user.Salt;
-
-                byte[] password = Encoding.Unicode.GetBytes(user.Salt + model.Password);
-
-                var md5 = MD5.Create();
-
-                byte[] byteHash = md5.ComputeHash(password);
-
-                var hash = new StringBuilder(byteHash.Length);
-
-                for (int i = 0; i < byteHash.Length; i++)
-                    hash.Append(string.Format("{0:X2}", byteHash[i]));
-
-                if (user.Password == hash.ToString()) 
-                {
-                    var option = new CookieOptions();
-                    option.Expires = DateTime.Now.AddDays(10);
-                    Response.Cookies.Append("login", model.Login, option);
-
-                    return RedirectToAction("Index", "Message");
-                }
-
-                ModelState.AddModelError("", "Неверный логин или пароль!");
-                return View();
+                var option = new CookieOptions { Expires = DateTime.Now.AddDays(10) };
+                Response.Cookies.Append("login", user.Login, option);
+                return RedirectToAction("Index", "Message");
             }
-
 
             ModelState.AddModelError("", "Неверный логин или пароль!");
             return View(model);
