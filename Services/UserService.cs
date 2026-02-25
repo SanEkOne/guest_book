@@ -14,7 +14,6 @@ namespace mvc.Services
 
         public async Task RegisterAsync(User user)
         {
-            // Генерация соли
             byte[] saltbuf = new byte[16];
             using (var r = RandomNumberGenerator.Create())
             {
@@ -22,7 +21,6 @@ namespace mvc.Services
             }
             string salt = Convert.ToHexString(saltbuf);
 
-            // Хэширование
             user.Password = HashPassword(user.Password, salt);
             user.Salt = salt;
 
@@ -40,11 +38,10 @@ namespace mvc.Services
             return user.Password == hashedPassword ? user : null;
         }
 
-        // Приватный метод, чтобы не дублировать код хэширования
         private string HashPassword(string password, string salt)
         {
             byte[] bytes = Encoding.Unicode.GetBytes(salt + password);
-            byte[] byteHash = MD5.HashData(bytes); // Современный синтаксис MD5
+            byte[] byteHash = MD5.HashData(bytes); 
             return Convert.ToHexString(byteHash);
         }
     }
