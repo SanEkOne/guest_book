@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Metrics;
+﻿using mvc.Repository;
+using System.Diagnostics.Metrics;
 
 namespace mvc.Services
 {
@@ -6,8 +7,11 @@ namespace mvc.Services
     {
         public static void AddUserService(this IServiceCollection services)
         {
-            services.AddTransient<IUserService>();
-            services.AddTransient<UserService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
     }
 }

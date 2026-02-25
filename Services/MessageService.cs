@@ -1,40 +1,38 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using mvc.Repository;
 
 namespace mvc.Services
 {
     public class MessageService : IMessageService
     {
-        private readonly MessageContext _context;
+        private readonly IMessageRepository _messageRepo;
+        private readonly IUserRepository _userRepo;
 
-        public MessageService(MessageContext context)
+        public MessageService(IMessageRepository messageRepo, IUserRepository userRepo)
         {
-            _context = context;
+            _messageRepo = messageRepo;
+            _userRepo = userRepo;
         }
 
         public async Task<List<Message>> GetAllMessagesAsync()
         {
-            return await _context.Messages
-                .Include(m => m.User)
-                .OrderByDescending(m => m.DateTime) 
-                .ToListAsync();
+            return await _messageRepo.GetAllWithUsersAsync();
         }
 
         public async Task CreateMessageAsync(string text, string userLogin)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == userLogin);
+            var user = await _userRepo.GetByLoginAsync(userLogin);
+            if (user == null) throw new Exception("User not found");
 
-            if (user == null)
-                throw new Exception("User not found"); 
-
-            var message = new Message
-            {
-                Text = text,
-                UserId = user.Id,
-                DateTime = DateTime.Now
+            var message = new Message 
+            { 
+                Text = text, 
+                UserId = user.Id, 
+                DateTime = DateTime.Now 
             };
 
-            _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
+            await _messageRepo.AddAsync(message);
+            await _messageRepo.SaveChangesAsync();
         }
     }
 }

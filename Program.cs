@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using mvc.Repository;
 using mvc.Services;
 
 namespace mvc
@@ -13,8 +14,10 @@ namespace mvc
 
             builder.Services.AddDbContext<MessageContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddDbContext<MessageContext>(options => options.UseSqlServer(connection));
+
+            builder.Services.AddUserService(); 
+
 
             builder.Services.AddControllersWithViews();
 
