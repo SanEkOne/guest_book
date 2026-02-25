@@ -43,7 +43,7 @@ namespace mvc.Services
         private string HashPassword(string password, string salt)
         {
             byte[] bytes = Encoding.Unicode.GetBytes(salt + password);
-            byte[] byteHash = MD5.HashData(bytes);
+            byte[] byteHash = MD5.HashData(bytes); // Современный синтакси      с MD5
             return Convert.ToHexString(byteHash);
         }
     }
